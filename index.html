@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Neighborhood Map</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <script type="text/javascript" src="js/lib/jquery-3.1.0.min.js"></script>
+    <script type="text/javascript" src="js/lib/knockout-3.4.0.js"></script>
+    <script type="text/javascript" src="js/lib/oauth.js"></script>
+    <script type="text/javascript" src="js/lib/sha1.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnsbVR8B_dEVnevVq-a6hR2rPLIS4-gu4"></script>
+    <nav id="drawer" class="dark_blue">
+        <div class="form">
+            <div class="form-group">
+                <label>search name:</label>
+                <input type="search" class="form-control" data-bind="textInput: query " autocomplete="on" />
+            </div>
+        </div>
+        <div>
+            <ul data-bind="foreach: filtereddata">
+                <li data-bind="text: name, click: $parent.clickListitem , css: { highlighttext: selected()==true}"></li>
+            </ul>
+        </div>
+    </nav>
+    <main class="light_blue">
+        <a id="menu">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z" />
+            </svg>
+        </a>
+        <div id="map">
+        </div>
+    </main>
+</body>
+
+</html>
