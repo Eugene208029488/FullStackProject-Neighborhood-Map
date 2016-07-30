@@ -1,5 +1,5 @@
 #Neighborhood Map
-Develop a single-page application featuring a map of your neighborhood. Add the following functionalities: map markers to identify popular locations or places you’d like to visit, a search function to easily discover these locations, and a listview to support simple browsing of all locations. Also implement third-party APIs that provide additional information about each of these locations like Yelp.
+Develop a single-page application featuring a map of your neighborhood restaurants. Add the following functionalities: map markers to identify popular restaurants, a search function to easily discover these restaurants, and a listview to support simple browsing of all restaurants. Also access Yelp third-party APIs to provide additional information about each of these places.
 
 #Technology used:
 1. Ajax call
@@ -7,7 +7,7 @@ Develop a single-page application featuring a map of your neighborhood. Add the 
 3. Google Map API
 4. Yelp API
 
-#Instructions for the catalog application
+#Instructions for the Neighborhood Map application
 1. Open index.html in a Chrome browser.
 2. Page will initially be loaded with all the locations on the list view and markers will be visible on the map.
 3. Click any marker and it will:
