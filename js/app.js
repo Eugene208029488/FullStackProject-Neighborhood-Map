@@ -1,11 +1,11 @@
 //Yelp API authorization
 var auth = {
-    consumerKey: "8L0N5Y4Y_5nWgpDtuTkohQ",
-    consumerSecret: "iFNnSoNi7GEdTww73caLQvsKf3Y",
-    accessToken: "tTEdjH2VZaIZas2ioc-ex72kEHxHEpir",
-    accessTokenSecret: "PJ5AjTZKwL8Jp-5LM686Czm39hU",
+    consumerKey: '8L0N5Y4Y_5nWgpDtuTkohQ',
+    consumerSecret: 'iFNnSoNi7GEdTww73caLQvsKf3Y',
+    accessToken: 'tTEdjH2VZaIZas2ioc-ex72kEHxHEpir',
+    accessTokenSecret: 'PJ5AjTZKwL8Jp-5LM686Czm39hU',
     serviceProvider: {
-        signatureMethod: "HMAC-SHA1"
+        signatureMethod: 'HMAC-SHA1'
     }
 };
 
@@ -41,7 +41,7 @@ var initlocation = [{
         lng: -72.675408,
     }
 }, {
-    name: "Ichiban",
+    name: 'Ichiban',
     location: {
         lat: 41.7667179,
         lng: -72.7119986,
@@ -63,6 +63,10 @@ var initlocation = [{
 var map;
 
 //This will initialize the Google Map
+/**
+* @description: Initialize the Google Map
+* @returns null
+*/
 function initMap() {
     var infowindow;
     var marker, i;
@@ -75,8 +79,11 @@ function initMap() {
     });
 }
 
-// This function will do an asynchronous API call to Yelp
-// to get more information regarding the location
+/**
+* @description Asynchronous API call to Yelp and display in infowindow
+* @param {LocationSpot} data
+* @returns null
+*/
 function displayYelpInfo(data) {
     //Yelp requires OAuth authentication.  Use oauth.js and sha1.js to
     //authenticate using the token provided by Yelp.
@@ -86,7 +93,7 @@ function displayYelpInfo(data) {
     };
 
     var location = data.location().lat + ',' + data.location().lng;
-    parameters = [];
+    var parameters = [];
     parameters.push(['term', data.name()]);
     parameters.push(['ll', location]);
     parameters.push(['callback', 'cb']);
@@ -124,7 +131,7 @@ function displayYelpInfo(data) {
             infowindow.setContent(htmlcontent);
         },
         'error': function(jqXHR, textStats, errorThrown) {
-            infowindow.setContent("Error loading Yelp review.");
+            infowindow.setContent('Error loading Yelp review.');
         }
     });
 
@@ -146,7 +153,9 @@ function displayYelpInfo(data) {
 
 }
 
-// this is the Model
+/**
+* @description: Model section
+*/
 var LocationSpot = function(data) {
     this.name = ko.observable(data.name);
     this.location = ko.observable(data.location);
@@ -161,8 +170,9 @@ var LocationSpot = function(data) {
     this.marker = mapmarker;
 }
 
-
-
+/**
+* @description: ViewModel section
+*/
 var ViewModel = function() {
     var self = this;
     self.locationList = ko.observableArray([]);
@@ -184,7 +194,7 @@ var ViewModel = function() {
 
     //Create a filtereddata based on the search query.
     //will make the marker visible or not based on the search query.
-    self.query = ko.observable("");
+    self.query = ko.observable('');
     self.filtereddata = ko.computed(function() {
         var filter = self.query().toLowerCase();
         if (!filter) {
@@ -221,9 +231,9 @@ $(document).ready(function() {
 
     //responsive code to ensure Google Map is
     //always re-centered if re-sized.
-    google.maps.event.addDomListener(window, "resize", function() {
+    google.maps.event.addDomListener(window, 'resize', function() {
         var center = map.getCenter();
-        google.maps.event.trigger(map, "resize");
+        google.maps.event.trigger(map, 'resize');
         map.setCenter(center);
     });
 
@@ -239,5 +249,4 @@ $(document).ready(function() {
     main.addEventListener('click', function() {
         drawer.classList.remove('open');
     });
-
 });
