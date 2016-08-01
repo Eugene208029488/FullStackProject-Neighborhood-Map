@@ -65,9 +65,9 @@ var infowindow;
 
 //This will initialize the Google Map
 /**
-* @description: Initialize the Google Map
-* @returns null
-*/
+ * @description: Initialize the Google Map
+ * @returns null
+ */
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
         center: {
@@ -77,9 +77,9 @@ function initMap() {
         zoom: 13
     });
 
-    infowindow = new google.maps.InfoWindow;
+    infowindow = new google.maps.InfoWindow();
 
-    var  myModel = new  ViewModel();
+    var myModel = new ViewModel();
     ko.applyBindings(myModel);
 
     //responsive code to ensure Google Map is
@@ -89,25 +89,12 @@ function initMap() {
         google.maps.event.trigger(map, 'resize');
         map.setCenter(center);
     });
-/*
-    //create off-canvas pattern layout to hide search list if < 600px
-    var menu = document.querySelector('#menu');
-    var main = document.querySelector('main');
-    var drawer = document.querySelector('#drawer');
 
-    menu.addEventListener('click', function(e) {
-        drawer.classList.toggle('open');
-        e.stopPropagation();
-    });
-    main.addEventListener('click', function() {
-        drawer.classList.remove('open');
-    });
-*/
     $(window).resize(function() {
-      if ($(window).width() < 600)
-        myModel.showMenuIcon(true);
-      else
-        myModel.showMenuIcon(false);
+        if ($(window).width() < 600)
+            myModel.showMenuIcon(true);
+        else
+            myModel.showMenuIcon(false);
     });
     if ($(window).width() < 600)
         myModel.showMenuIcon(true);
@@ -116,18 +103,44 @@ function initMap() {
 }
 
 /**
-* @description: Error Handler for Google Map API call
-* @returns null
-*/function mapErrorHandler() {
+ * @description: Error Handler for Google Map API call
+ * @returns null
+ */
+function mapErrorHandler() {
     document.getElementById("map").innerHTML = "<b>Google Map is not available at this time.  Please try again later.</b>";
 }
 
 /**
-* @description Asynchronous API call to Yelp and display in infowindow
-* @param {LocationSpot} data
-* @returns null
-*/
-function displayYelpInfo(data) {
+ * @description: Model section
+ */
+var LocationSpot = function(data) {
+    this.name = ko.observable(data.name);
+    this.location = ko.observable(data.location);
+    this.selected = ko.observable(false);
+
+    // creating the Google marker and making it as part of this model
+    var mapmarker = new google.maps.Marker({
+        position: data.location,
+        title: data.name,
+        map: map
+    });
+
+    mapmarker.addListener('click', (function(thisCopy) {
+        return function() {
+            thisCopy.displayYelpInfo();
+        };
+    })(this));
+    this.marker = mapmarker;
+};
+
+/**
+ * @description Asynchronous API call to Yelp and display in infowindow
+ * @returns null
+ */
+LocationSpot.prototype.displayYelpInfo = function() {
+    // "this" is the current instance inside this function
+    var self = this;
+
     //Yelp requires OAuth authentication.  Use oauth.js and sha1.js to
     //authenticate using the token provided by Yelp.
     var accessor = {
@@ -135,9 +148,9 @@ function displayYelpInfo(data) {
         tokenSecret: auth.accessTokenSecret
     };
 
-    var location = data.location().lat + ',' + data.location().lng;
+    var location = self.location().lat + ',' + self.location().lng;
     var parameters = [];
-    parameters.push(['term', data.name()]);
+    parameters.push(['term', self.name()]);
     parameters.push(['ll', location]);
     parameters.push(['callback', 'cb']);
     parameters.push(['oauth_consumer_key', auth.consumerKey]);
@@ -150,12 +163,12 @@ function displayYelpInfo(data) {
         'method': 'GET',
         'parameters': parameters
     };
-
+    var htmlcontent = '';
     OAuth.setTimestampAndNonce(message);
     OAuth.SignatureMethod.sign(message, accessor);
     var parameterMap = OAuth.getParameterMap(message.parameters);
 
-    map.panTo(data.location());
+    map.panTo(self.location());
 
     //use global infowindow variable so that there's only 1 instance of infowindow open at a time.
     if (infowindow) {
@@ -163,7 +176,7 @@ function displayYelpInfo(data) {
     }
 
     infowindow.setContent('Loading...');
-    infowindow.open(map, data.marker);
+    infowindow.open(map, self.marker);
 
     $.ajax({
         'url': message.action,
@@ -171,64 +184,66 @@ function displayYelpInfo(data) {
         'dataType': 'jsonp',
         'cache': true,
         'success': function(data, textStats, XMLHttpRequest) {
-            //console.log(data);
-            htmlcontent = '<a href="' + data.businesses[0].url + '" target="_blank"><h4 style="margin:0;">' + data.businesses[0].name + '</h4></a>'
-            htmlcontent += '<img src="' + data.businesses[0].rating_img_url + '" alt="Yelp Rating" height="17" width="84"> &nbsp; &nbsp;' + data.businesses[0].review_count + ' Yelp Reviews <br>'
-            htmlcontent += data.businesses[0].location.display_address[0] + '<br>' + data.businesses[0].location.display_address[2] + '<br>' + data.businesses[0].display_phone
+            htmlcontent = '<a href="' + data.businesses[0].url + '" target="_blank"><h4 style="margin:0;">' + data.businesses[0].name + '</h4></a>';
+            htmlcontent += '<img src="' + data.businesses[0].rating_img_url + '" alt="Yelp Rating" height="17" width="84"> &nbsp; &nbsp;' + data.businesses[0].review_count + ' Yelp Reviews <br>';
+            htmlcontent += data.businesses[0].location.display_address[0] + '<br>' + data.businesses[0].location.display_address[2] + '<br>' + data.businesses[0].display_phone;
             infowindow.setContent(htmlcontent);
         },
-        'error': function(jqXHR, textStats, errorThrown) {
+        'error': function() {
             infowindow.setContent('Error loading Yelp review.');
         }
     });
 
-    data.marker.setAnimation(google.maps.Animation.BOUNCE);
-    data.selected(true);
+    self.selectMarker();
 
     infowindow.addListener('closeclick', function() {
-        data.marker.setAnimation(null);
-        data.selected(false);
+        self.unselectMarker();
     });
 
 
     //will automatically close all infowindow, animation and highlight if click anywhere in the map
     google.maps.event.addListener(map, 'click', function() {
         if (infowindow) {
-            data.marker.setAnimation(null);
             infowindow.close();
-            data.selected(false);
-
+            self.unselectMarker();
         }
     });
 
     //will automatically stop the animation and unhighlight the item from list view after 3 secs
     window.setTimeout(function() {
-        data.marker.setAnimation(null);
-        data.selected(false);
+        self.unselectMarker();
     }, 3000);
 
-}
+};
+
+
 
 /**
-* @description: Model section
-*/
-var LocationSpot = function(data) {
-    this.name = ko.observable(data.name);
-    this.location = ko.observable(data.location);
-    this.selected = ko.observable(false);
-
-    // creating the Google marker and making it as part of this model
-    var mapmarker = new google.maps.Marker({
-        position: data.location,
-        title: data.name,
-        map: map
-    });
-    this.marker = mapmarker;
-}
+ * @description: LocationSpot selectMarker method will bounce the marker and highlight the item from the list view
+ * @returns null
+ */
+LocationSpot.prototype.selectMarker = function() {
+    // "this" is the current instance inside this function
+    var self = this;
+    self.marker.setAnimation(google.maps.Animation.BOUNCE);
+    self.selected(true);
+};
 
 /**
-* @description: ViewModel section
-*/
+ * @description: this will stop the animation and unhighlight the item from the list view
+ * @returns null
+ */
+LocationSpot.prototype.unselectMarker = function() {
+    // "this" is the current instance inside this function
+    var self = this;
+    self.marker.setAnimation(null);
+    self.selected(false);
+};
+
+
+/**
+ * @description: ViewModel section
+ */
 var ViewModel = function() {
     var self = this;
     self.locationList = ko.observableArray([]);
@@ -237,17 +252,6 @@ var ViewModel = function() {
     initlocation.forEach(function(data) {
         self.locationList.push(new LocationSpot(data));
     });
-
-    //Create an click event listener to all the marker
-    //in the observablearray.  It will call displayYelpInfo
-    //if marker is clicked.
-    self.locationList().forEach(function(data) {
-        if (data.hasOwnProperty('marker')) {
-            data.marker.addListener('click', function() {
-                displayYelpInfo(data);
-            })
-        }
-    })
 
     //Create a filtereddata based on the search query.
     //will make the marker visible or not based on the search query.
@@ -259,7 +263,7 @@ var ViewModel = function() {
                 if (data.hasOwnProperty('marker')) {
                     data.marker.setVisible(true);
                 }
-            })
+            });
             return self.locationList();
         } else {
             return ko.utils.arrayFilter(self.locationList(), function(item) {
@@ -276,19 +280,18 @@ var ViewModel = function() {
 
     // this will be called by the data-bind click event if the list item is clicked
     self.clickListitem = function(data) {
-        var infowindow = new google.maps.InfoWindow;
-        displayYelpInfo(data);
-    }
+        //var infowindow = new google.maps.InfoWindow;
+        data.displayYelpInfo();
+    };
 
     self.clickMain = function(data) {
         var drawer = document.querySelector('#drawer');
         drawer.classList.remove('open');
-    }
+    };
 
-    self.clickMenu = function(data,e) {
+    self.clickMenu = function(data, e) {
         var drawer = document.querySelector('#drawer');
         drawer.classList.toggle('open');
         e.stopPropagation();
-    }
-}
-
+    };
+};
