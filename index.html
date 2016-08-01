@@ -29,11 +29,11 @@
             </ul>
         </div>
     </nav>
-    <main class="light_blue">
+    <main class="light_blue" data-bind="click: clickMain">
         <div class="container">
             <div class="row">
                 <div class="col-xs-1">
-                    <a id="menu" data-bind="visible: showMenuIcon">
+                    <a id="menu" data-bind="visible: showMenuIcon, click: clickMenu">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"></path>
                         </svg>

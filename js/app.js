@@ -82,8 +82,6 @@ function initMap() {
     var  myModel = new  ViewModel();
     ko.applyBindings(myModel);
 
-    console.log(myModel.showMenuIcon());
-   
     //responsive code to ensure Google Map is
     //always re-centered if re-sized.
     google.maps.event.addDomListener(window, 'resize', function() {
@@ -91,7 +89,7 @@ function initMap() {
         google.maps.event.trigger(map, 'resize');
         map.setCenter(center);
     });
-
+/*
     //create off-canvas pattern layout to hide search list if < 600px
     var menu = document.querySelector('#menu');
     var main = document.querySelector('main');
@@ -104,13 +102,17 @@ function initMap() {
     main.addEventListener('click', function() {
         drawer.classList.remove('open');
     });
-
+*/
     $(window).resize(function() {
-      if ($(window).width() < 583) 
+      if ($(window).width() < 600)
         myModel.showMenuIcon(true);
-      else 
+      else
         myModel.showMenuIcon(false);
     });
+    if ($(window).width() < 600)
+        myModel.showMenuIcon(true);
+    else
+        myModel.showMenuIcon(false);
 }
 
 /**
@@ -199,7 +201,7 @@ function displayYelpInfo(data) {
         }
     });
 
-    //will automatically stop the animation and unhighlight the item from list view after 3 secs 
+    //will automatically stop the animation and unhighlight the item from list view after 3 secs
     window.setTimeout(function() {
         data.marker.setAnimation(null);
         data.selected(false);
@@ -276,6 +278,17 @@ var ViewModel = function() {
     self.clickListitem = function(data) {
         var infowindow = new google.maps.InfoWindow;
         displayYelpInfo(data);
+    }
+
+    self.clickMain = function(data) {
+        var drawer = document.querySelector('#drawer');
+        drawer.classList.remove('open');
+    }
+
+    self.clickMenu = function(data,e) {
+        var drawer = document.querySelector('#drawer');
+        drawer.classList.toggle('open');
+        e.stopPropagation();
     }
 }
 
