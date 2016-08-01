@@ -146,12 +146,9 @@ function displayYelpInfo(data) {
 
     map.panTo(data.location());
 
-    //infowindow = new google.maps.InfoWindow;
+    //use global infowindow variable so that there's only 1 instance of infowindow open at a time.
     if (infowindow) {
-        data.marker.setAnimation(null);
         infowindow.close();
-        data.selected(false);
-
     }
 
     infowindow.setContent('Loading...');
@@ -182,6 +179,8 @@ function displayYelpInfo(data) {
         data.selected(false);
     });
 
+
+    //will automatically close all infowindow, animation and highlight if click anywhere in the map
     google.maps.event.addListener(map, 'click', function() {
         if (infowindow) {
             data.marker.setAnimation(null);
@@ -191,15 +190,12 @@ function displayYelpInfo(data) {
         }
     });
 
-/*
-    //will automatically close the infowindow after 8 secs if user
-    //did not manually close it.
+    //will automatically stop the animation and unhighlight the item from list view after 3 secs 
     window.setTimeout(function() {
         data.marker.setAnimation(null);
-        infowindow.close();
         data.selected(false);
-    }, 8000);
-*/
+    }, 3000);
+
 }
 
 /**
