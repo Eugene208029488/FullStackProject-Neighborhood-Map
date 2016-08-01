@@ -200,7 +200,6 @@ LocationSpot.prototype.displayYelpInfo = function() {
         self.unselectMarker();
     });
 
-
     //will automatically close all infowindow, animation and highlight if click anywhere in the map
     google.maps.event.addListener(map, 'click', function() {
         if (infowindow) {
@@ -213,7 +212,6 @@ LocationSpot.prototype.displayYelpInfo = function() {
     window.setTimeout(function() {
         self.unselectMarker();
     }, 3000);
-
 };
 
 
