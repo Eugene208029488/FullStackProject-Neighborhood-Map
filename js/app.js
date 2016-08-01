@@ -61,6 +61,7 @@ var initlocation = [{
 }];
 
 var map;
+var infowindow;
 
 //This will initialize the Google Map
 /**
@@ -68,8 +69,6 @@ var map;
 * @returns null
 */
 function initMap() {
-    var infowindow;
-    var marker, i;
     map = new google.maps.Map(document.getElementById('map'), {
         center: {
             lat: 41.76034899999998,
@@ -77,6 +76,39 @@ function initMap() {
         },
         zoom: 13
     });
+
+    infowindow = new google.maps.InfoWindow;
+
+    ko.applyBindings(new ViewModel());
+   
+    //responsive code to ensure Google Map is
+    //always re-centered if re-sized.
+    google.maps.event.addDomListener(window, 'resize', function() {
+        var center = map.getCenter();
+        google.maps.event.trigger(map, 'resize');
+        map.setCenter(center);
+    });
+
+    //create off-canvas pattern layout to hide search list if < 600px
+    var menu = document.querySelector('#menu');
+    var main = document.querySelector('main');
+    var drawer = document.querySelector('#drawer');
+
+    menu.addEventListener('click', function(e) {
+        drawer.classList.toggle('open');
+        e.stopPropagation();
+    });
+    main.addEventListener('click', function() {
+        drawer.classList.remove('open');
+    });
+
+}
+
+/**
+* @description: Error Handler for Google Map API call
+* @returns null
+*/function mapErrorHandler() {
+    document.getElementById("map").innerHTML = "<b>Google Map is not available at this time.  Please try again later.</b>";
 }
 
 /**
@@ -114,7 +146,14 @@ function displayYelpInfo(data) {
 
     map.panTo(data.location());
 
-    var infowindow = new google.maps.InfoWindow;
+    //infowindow = new google.maps.InfoWindow;
+    if (infowindow) {
+        data.marker.setAnimation(null);
+        infowindow.close();
+        data.selected(false);
+
+    }
+
     infowindow.setContent('Loading...');
     infowindow.open(map, data.marker);
 
@@ -143,6 +182,16 @@ function displayYelpInfo(data) {
         data.selected(false);
     });
 
+    google.maps.event.addListener(map, 'click', function() {
+        if (infowindow) {
+            data.marker.setAnimation(null);
+            infowindow.close();
+            data.selected(false);
+
+        }
+    });
+
+/*
     //will automatically close the infowindow after 8 secs if user
     //did not manually close it.
     window.setTimeout(function() {
@@ -150,7 +199,7 @@ function displayYelpInfo(data) {
         infowindow.close();
         data.selected(false);
     }, 8000);
-
+*/
 }
 
 /**
@@ -225,28 +274,3 @@ var ViewModel = function() {
 
 }
 
-$(document).ready(function() {
-    initMap();
-    ko.applyBindings(new ViewModel());
-
-    //responsive code to ensure Google Map is
-    //always re-centered if re-sized.
-    google.maps.event.addDomListener(window, 'resize', function() {
-        var center = map.getCenter();
-        google.maps.event.trigger(map, 'resize');
-        map.setCenter(center);
-    });
-
-    //create off-canvas pattern layout to hide search list if < 600px
-    var menu = document.querySelector('#menu');
-    var main = document.querySelector('main');
-    var drawer = document.querySelector('#drawer');
-
-    menu.addEventListener('click', function(e) {
-        drawer.classList.toggle('open');
-        e.stopPropagation();
-    });
-    main.addEventListener('click', function() {
-        drawer.classList.remove('open');
-    });
-});
