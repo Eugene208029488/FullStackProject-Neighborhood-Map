@@ -79,7 +79,10 @@ function initMap() {
 
     infowindow = new google.maps.InfoWindow;
 
-    ko.applyBindings(new ViewModel());
+    var  myModel = new  ViewModel();
+    ko.applyBindings(myModel);
+
+    console.log(myModel.showMenuIcon());
    
     //responsive code to ensure Google Map is
     //always re-centered if re-sized.
@@ -102,6 +105,12 @@ function initMap() {
         drawer.classList.remove('open');
     });
 
+    $(window).resize(function() {
+      if ($(window).width() < 583) 
+        myModel.showMenuIcon(true);
+      else 
+        myModel.showMenuIcon(false);
+    });
 }
 
 /**
@@ -221,6 +230,7 @@ var LocationSpot = function(data) {
 var ViewModel = function() {
     var self = this;
     self.locationList = ko.observableArray([]);
+    self.showMenuIcon = ko.observable(false);
     //Load the default data into observablearray.
     initlocation.forEach(function(data) {
         self.locationList.push(new LocationSpot(data));
@@ -267,6 +277,5 @@ var ViewModel = function() {
         var infowindow = new google.maps.InfoWindow;
         displayYelpInfo(data);
     }
-
 }
 
