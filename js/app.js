@@ -69,6 +69,7 @@ var infowindow;
  * @returns null
  */
 function initMap() {
+    'use strict';
     map = new google.maps.Map(document.getElementById('map'), {
         center: {
             lat: 41.76034899999998,
@@ -114,6 +115,7 @@ function mapErrorHandler() {
  * @description: Model section
  */
 var LocationSpot = function(data) {
+    'use strict';
     this.name = ko.observable(data.name);
     this.location = ko.observable(data.location);
     this.selected = ko.observable(false);
@@ -138,6 +140,7 @@ var LocationSpot = function(data) {
  * @returns null
  */
 LocationSpot.prototype.displayYelpInfo = function() {
+    'use strict';
     // "this" is the current instance inside this function
     var self = this;
 
@@ -182,16 +185,14 @@ LocationSpot.prototype.displayYelpInfo = function() {
         'url': message.action,
         'data': parameterMap,
         'dataType': 'jsonp',
-        'cache': true,
-        'success': function(data, textStats, XMLHttpRequest) {
-            htmlcontent = '<a href="' + data.businesses[0].url + '" target="_blank"><h4 style="margin:0;">' + data.businesses[0].name + '</h4></a>';
-            htmlcontent += '<img src="' + data.businesses[0].rating_img_url + '" alt="Yelp Rating" height="17" width="84"> &nbsp; &nbsp;' + data.businesses[0].review_count + ' Yelp Reviews <br>';
-            htmlcontent += data.businesses[0].location.display_address[0] + '<br>' + data.businesses[0].location.display_address[2] + '<br>' + data.businesses[0].display_phone;
-            infowindow.setContent(htmlcontent);
-        },
-        'error': function() {
-            infowindow.setContent('Error loading Yelp review.');
-        }
+        'cache': true
+    }).done(function(data) {
+        htmlcontent = '<a href="' + data.businesses[0].url + '" target="_blank"><h4 style="margin:0;">' + data.businesses[0].name + '</h4></a>';
+        htmlcontent += '<img src="' + data.businesses[0].rating_img_url + '" alt="Yelp Rating" height="17" width="84"> &nbsp; &nbsp;' + data.businesses[0].review_count + ' Yelp Reviews <br>';
+        htmlcontent += data.businesses[0].location.display_address[0] + '<br>' + data.businesses[0].location.display_address[2] + '<br>' + data.businesses[0].display_phone;
+        infowindow.setContent(htmlcontent);
+    }).fail(function(jqXHR, textStatus) {
+        infowindow.setContent('Error loading Yelp review.');
     });
 
     self.selectMarker();
@@ -208,10 +209,10 @@ LocationSpot.prototype.displayYelpInfo = function() {
         }
     });
 
-    //will automatically stop the animation and unhighlight the item from list view after 3 secs
+    //will automatically stop the animation and unhighlight the item from list view after 3 bounce (700ms per bounce)
     window.setTimeout(function() {
         self.unselectMarker();
-    }, 3000);
+    }, 2100);  //
 };
 
 
@@ -243,6 +244,7 @@ LocationSpot.prototype.unselectMarker = function() {
  * @description: ViewModel section
  */
 var ViewModel = function() {
+    'use strict';
     var self = this;
     self.locationList = ko.observableArray([]);
     self.showMenuIcon = ko.observable(false);
